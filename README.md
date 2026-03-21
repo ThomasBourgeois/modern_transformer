@@ -1,5 +1,7 @@
 # modern_transformer 
 
+[![codecov](https://codecov.io/gh/ThomasBourgeois/modern_transformer/branch/main/graph/badge.svg)](https://codecov.io/gh/ThomasBourgeois/modern_transformer)
+
 `modern_transformer` is a PyTorch learning project for building a decoder-style Transformer with modern components:
 
 - Mixture of Experts (MoE) feed-forward layers

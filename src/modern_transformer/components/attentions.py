@@ -2,13 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .rope import get_rotation_matrix, RoPE
-
-PERIOD = 10_000
+from .rope import RoPE
 
 
 class EfficientSlidingWindowMultiheadAttention(nn.Module):
-    def __init__(self, hidden_size, num_heads, window_size):
+    def __init__(self, hidden_size, num_heads, window_size, rotation_matrix):
         super().__init__()
         assert (
             hidden_size % num_heads == 0
@@ -23,9 +21,7 @@ class EfficientSlidingWindowMultiheadAttention(nn.Module):
         self.out = nn.Linear(hidden_size, hidden_size)
 
         # position embedding attribute with RoPE
-        self.pos_emb = RoPE(
-            get_rotation_matrix(self.head_dim, self.window_size, PERIOD)
-        )
+        self.pos_emb = RoPE(rotation_matrix=rotation_matrix)
 
     def forward(self, x):
         batch_size, seq_length, _ = x.size()
