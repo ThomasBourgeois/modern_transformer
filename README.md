@@ -13,33 +13,50 @@ The codebase is organized to keep reusable components in `src/components/` and m
 
 ## Current Status
 
-This package is under active development.
+The following components are implemented and covered by unit tests in `tests/unittests/`:
 
-- Implemented and tested: `MoeLayer` in `src/components/moe.py`
-- Implemented: attention and RoPE helpers in `src/components/attentions.py` and `src/components/rope.py`
-- In progress (contains TODOs): `TransformerBlock`, `Transformer`, and `RMSNorm._norm`
+- **Activation:** `SiGLU` implemented in `src/components/activations.py` and tested.
+- **Normalization:** `RMSNorm` implemented in `src/components/norm_layers.py` and tested.
+- **Attention:** `SlidingWindowMultiheadAttention` and `EfficientSlidingWindowMultiheadAttention` implemented in `src/components/attentions.py` and tested.
+- **Rotary Embeddings:** `RoPE` and `apply_rotary_emb` in `src/components/rope.py` and tested.
+- **Mixture-of-Experts:** `FeedForward` and `MoeLayer` in `src/components/moe.py` and comprehensively tested.
+- **Transformer assembly:** `TransformerBlock` and `Transformer` implemented in `src/transformer/blocks.py` and `src/transformer/model.py` (basic forward pass implemented; integration tests present).
+
+Note: the project requires Python >= 3.14 for installation and running the test suite (see Installation section).
 
 ## Project Structure
 
 ```text
 modern_transformer/
-	src/
-		components/
-			activations.py
-			attentions.py
-			moe.py
-			norm_layers.py
-			rope.py
-		transformer/
-			blocks.py
-			model.py
-	tests/
-		unittests/
-			test_moe.py
-		integration_tests/
-			test_code.py
+	LICENSE
 	pyproject.toml
 	pytest.ini
+	README.md
+	src/
+		modern_transformer/
+			__init__.py
+			components/
+				__init__.py
+				activations.py
+				attentions.py
+				moe.py
+				norm_layers.py
+				rope.py
+				rope.py.bak
+			transformer/
+				__init__.py
+				blocks.py
+				model.py
+	tests/
+		__init__.py
+		unittests/
+			test_activations.py
+			test_attentions.py
+			test_moe.py
+			test_norm_layers.py
+			test_rope.py
+		integration_tests/
+			test_code.py
 ```
 
 ## Core Modules
@@ -58,25 +75,35 @@ modern_transformer/
 
 ## Installation
 
-This project uses `pyproject.toml` (`hatchling` backend).
+This project uses `pyproject.toml` (`hatchling` backend) and requires Python >= 3.14.
+
+Create and activate a Python 3.14 environment (example using conda), then install the package with development extras:
 
 ```bash
-conda activate <your_env>
-pip install -e .
+conda create -y -n modern_transformer python=3.14
+conda activate modern_transformer
+pip install --upgrade pip
+pip install -e '.[dev]'
 ```
 
 ## Running Tests
 
-Run tests with `pytest` from the project root.
+Run the full test suite from the project root (in the Python 3.14 env):
 
 ```bash
-conda run -n <your_env> python -m pytest -q
+pytest -q
 ```
 
 Run only unit tests for MoE:
 
 ```bash
-conda run -n aiedge python -m pytest tests/unittests/test_moe.py -q
+pytest tests/unittests/test_moe.py -q
+```
+
+If you prefer the `conda run` form (example):
+
+```bash
+conda run -n modern_transformer pytest -q
 ```
 
 ## Package Metadata
@@ -85,4 +112,16 @@ conda run -n aiedge python -m pytest tests/unittests/test_moe.py -q
 - Version: `0.0.1`
 - Python: `>=3.14`
 - License: MIT
+
+## CI / Codecov notes
+
+- The GitHub Actions workflow uses Python 3.14 (see `.github/workflows/ci.yml`).
+- If your repository's default branch is protected, Codecov uploads require a Codecov upload token.
+	Add the token as a repository secret named `CODECOV_TOKEN` (Settings → Secrets → Actions) or via the `gh` CLI:
+
+```bash
+gh secret set CODECOV_TOKEN --body "<your-codecov-token>"
+```
+
+You can also disable or remove the Codecov step in the workflow if you do not wish to publish coverage.
 
